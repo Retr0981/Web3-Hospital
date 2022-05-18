@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script src='node_modules/web3/dist/web3.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@0.18.2/dist/web3.min.js"></script>
+  </head>
+  <body>
+  <br >
+<a href="hospital.html"><button type="submit">Hospital Database</button></a>
+<a href="doctor.html"><button type="submit">Doctor Database</button></a>
+<a href="patient.html"><button type="submit">Patient  Database</button></a>
+<br /><br />
+Status: <span id="status"> Loading... </span>
+
+
+<script type="text/javascript">
+  async function loadWeb3() {
+    if (window.ethereum) {
+      window.web3 = new Web3(window.ethereum);
+      window.ethereum.enable();
+    }
+  }
+
+  async function loadContract() {
+    return await new window.web3.eth.contract([
+  {
+    "inputs": [],
+    "name": "coolNumber",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_coolNumber",
+        "type": "uint256"
+      }
+    ],
+    "name": "mulCoolNumber",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_coolNumber",
+        "type": "uint256"
+      }
+    ],
+    "name": "setCoolNumber",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+], '0x6D7a8a779a814b4800C8c756Ee174bc3c046214b');
+  }
+
+    async function printCoolNumber() {
+            updateStatus('fetching Cool Number...');
+            const coolNumber = await window.contract.methods.coolNumber().call();
+            updateStatus(`coolNumber: ${coolNumber}`);
+        }
+
+    async function getCurrentAccount() {
+            const accounts = await window.web3.eth.getAccounts();
+            return accounts[0];
+        }
+        
+        async function changeCoolNumber() {
+            
+            const value = document.getElementById("myText").value;
+            updateStatus(`Updating coolNumber with ${value}`);
+            const account = await getCurrentAccount();
+            const coolNumber = await window.contract.methods.setCoolNumber(value).send({ from: account });
+            updateStatus('Updated.');
+        }
+
+        async function mulCoolNumber() {
+            const value = document.getElementById("myText").value;
+            updateStatus(`Updating coolNumber with ${value}`);
+            const account = await getCurrentAccount();
+            const coolNumber = await window.contract.methods.mulCoolNumber(value).send({ from: account });
+            updateStatus('Updated.');
+        }
+
+    async function load() {
+      await loadWeb3();
+      window.contract = await loadContract();
+      updateStatus('Ready!');
+    }
+
+    function updateStatus(status) {
+            const statusEl = document.getElementById('status');
+            statusEl.innerHTML = status;
+            console.log(status);
+        }
+
+        load();
+
+</script>
+    <p><h1>Upload image</h1></p>
+    <div class="container">
+      <div class="row">
+        <h2>Select a file to upload</h2>
+        <p>
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul>
+              {% for message in messages %}
+              <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+        </p>
+        {% if filename %}
+        <div style="padding:20px;">
+          <img src="{{ url_for('display_image',filename=filename) }}">
+        </div>
+        {% endif %}
+          <form method="POST" action="/" enctype="multipart/form-data">
+            <d1>
+              <p>
+                <input type="file" name="file" class="form-control" autocomplete="off" required>
+              </p>
+            </d1>
+            <p>
+              Enter your age range among: (0-2), (4-6), (8-12), (15-20), (25-32), (38-43), (48-53), (60-100)
+              <br>
+              <input name="u">
+              <input type="submit" value="Submit" class="btn btn-info">
+            </p>
+          </form>
+      </div>
+    </div>
+</body>
+</html>
